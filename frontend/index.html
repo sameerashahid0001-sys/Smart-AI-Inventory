@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartInventory AI — Professional Dashboard</title>
+
+    <!-- Chart.js & Marked.js (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400..600&display=swap" rel="stylesheet" />
+
+    <!-- Font Awesome (free) for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <style>
+        /* RESET & BASE */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f0f4fc;
+            color: #0f172a;
+            padding: 20px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* LAYOUT */
+        .app-container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .app-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 14px 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            margin-bottom: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .logo-icon {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #facc15;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        }
+        .logo-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #0f172a, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-text h1 span {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo-text p {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: -2px;
+            -webkit-text-fill-color: #64748b;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            background: #f1f5f9;
+            padding: 4px;
+            border-radius: 16px;
+        }
+        .nav-tab {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #64748b;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+        .nav-tab:hover {
+            color: #0f172a;
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .nav-tab.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        .nav-tab .tab-icon {
+            font-size: 1rem;
+        }
+        .nav-tab .tab-badge {
+            background: #3b82f6;
+            color: white;
+            font-size: 0.6rem;
+            padding: 1px 8px;
+            border-radius: 30px;
+            margin-left: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .ollama-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: #f1f5f9;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .ollama-badge.online {
+            border-color: #22c55e;
+            background: #f0fdf4;
+            color: #166534;
+        }
+        .ollama-badge.offline {
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+        .ollama-badge.checking {
+            border-color: #eab308;
+            background: #fefce8;
+            color: #854d0e;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #94a3b8;
+            transition: all 0.3s ease;
+        }
+        .ollama-badge.online .status-dot {
+            background: #22c55e;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+        }
+        .ollama-badge.offline .status-dot {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+        .ollama-badge.checking .status-dot {
+            background: #eab308;
+            animation: pulse-dot 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.7);
+            }
+        }
+
+        .model-dropdown {
+            padding: 6px 16px 6px 14px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .model-dropdown:hover,
+        .model-dropdown:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        /* ----- CONTROL PANEL ----- */
+        .control-panel {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .panel-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 24px 28px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        .panel-card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+        .card-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .card-header h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-header h3 .header-icon {
+            font-size: 1.2rem;
+        }
+        .helper-tag {
+            font-size: 0.65rem;
+            background: #f1f5f9;
+            padding: 2px 12px;
+            border-radius: 30px;
+            color: #475569;
+            font-weight: 500;
+            margin-left: 6px;
+        }
+        .action-buttons-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.82rem;
+            background: #f1f5f9;
+            color: #1e293b;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0);
+            transition: 0.3s;
+        }
+        .btn:hover::after {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+        .btn:active {
+            transform: translateY(0px);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbd5e1;
+            color: #475569;
+        }
+        .btn-outline:hover {
+            border-color: #94a3b8;
+            background: #f8fafc;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+        }
+        .btn-success:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+            padding: 12px;
+        }
+        .btn-sm {
+            padding: 5px 14px;
+            font-size: 0.75rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: #fafbfc;
+            position: relative;
+        }
+        .drop-zone:hover {
+            border-color: #3b82f6;
+            background: #f0f7ff;
+            transform: scale(1.005);
+        }
+        .drop-zone.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: scale(1.01);
+        }
+        .upload-icon {
+            font-size: 2.6rem;
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+        }
+        .drop-zone p {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .subtext {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 14px 0;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .google-sheet-input-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .google-sheet-input-box label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+        .input-with-button input {
+            flex: 1;
+            padding: 10px 18px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            background: white;
+            outline: none;
+        }
+        .input-with-button input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        /* FORECAST SETTINGS (enhanced)*/
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 4px;
+        }
+        .config-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .config-item label {
+            font-weight: 500;
+            font-size: 0.78rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .config-item label .label-icon {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        .form-select {
+            padding: 9px 14px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+        .form-select:hover,
+        .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .config-footer {
+            margin-top: 18px;
+        }
+
+        /*KPI CARDS (glassmorphism)*/
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+        }
+        .kpi-icon-wrapper {
+            font-size: 1.6rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .kpi-icon-wrapper.blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .kpi-icon-wrapper.red {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .kpi-icon-wrapper.yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .kpi-icon-wrapper.green {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .kpi-icon-wrapper.purple {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+        .kpi-details {
+            flex: 1;
+            min-width: 0;
+        }
+        .kpi-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #64748b;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .kpi-value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            display: block;
+            line-height: 1.2;
+            color: #0f172a;
+        }
+        .kpi-subtext {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* CHARTS */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+        .chart-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+        .chart-card:hover {
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+        }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .chart-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .chart-hint {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            background: #f1f5f9;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .chart-container {
+            position: relative;
+            height: 260px;
+        }
+        .doughnut-container {
+            height: 220px;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        /* TABLE */
+        .table-section {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            margin-bottom: 28px;
+            transition: all 0.3s ease;
+        }
+        .table-section:hover {
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+        }
+        .table-header-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+        .table-title h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .table-title p {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .table-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .table-search-input {
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            min-width: 180px;
+            font-size: 0.82rem;
+            outline: none;
+            transition: all 0.2s ease;
+            background: white;
+        }
+        .table-search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .filter-select {
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            font-size: 0.82rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+        .filter-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+        th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px 12px;
+            font-weight: 600;
+            color: #475569;
+            white-space: nowrap;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+        }
+        tr:hover td {
+            background: #f8fafc;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: #94a3b8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge-critical {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .badge-high {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .badge-medium {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+        .badge-overstock {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .badge-healthy {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* ----- TABS ----- */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* REPORT TAB */
+        .report-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 28px 32px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .report-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+        .report-toolbar h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .report-source {
+            font-size: 0.7rem;
+            background: #f1f5f9;
+            padding: 2px 14px;
+            border-radius: 30px;
+            color: #475569;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        .report-loading-state {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .spinner {
+            border: 4px solid #f1f5f9;
+            border-top: 4px solid #1e293b;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .report-markdown-body {
+            background: #fafbfc;
+            border-radius: 16px;
+            padding: 28px 32px;
+            min-height: 300px;
+            border: 1px solid #edf2f7;
+            line-height: 1.8;
+            font-size: 0.92rem;
+        }
+        .report-markdown-body h1 {
+            font-size: 1.6rem;
+            margin: 0.5rem 0 0.3rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .report-markdown-body h2 {
+            font-size: 1.25rem;
+            margin: 0.75rem 0 0.3rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 6px;
+        }
+        .report-markdown-body h3 {
+            font-size: 1.05rem;
+            margin: 0.6rem 0 0.2rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .report-markdown-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.85rem;
+        }
+        .report-markdown-body th,
+        .report-markdown-body td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 14px;
+            text-align: left;
+        }
+        .report-markdown-body th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+        .report-markdown-body ul,
+        .report-markdown-body ol {
+            padding-left: 24px;
+        }
+        .report-markdown-body li {
+            margin: 4px 0;
+        }
+        .report-markdown-body blockquote {
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+            color: #475569;
+            margin: 8px 0;
+        }
+        .report-placeholder {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+        .report-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        /* ----- CHAT TAB ----- */
+        .chat-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+        .chat-sidebar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            height: fit-content;
+        }
+        .chat-sidebar h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+        .sidebar-subtext {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+        .suggestion-chips {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chip {
+            background: #f1f5f9;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 16px;
+            text-align: left;
+            font-size: 0.78rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chip:hover {
+            background: #e2e8f0;
+            transform: translateX(4px);
+        }
+        .chip .chip-icon {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .chat-info-box {
+            margin-top: 18px;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 16px 18px;
+            font-size: 0.82rem;
+            border: 1px solid #edf2f7;
+        }
+        .chat-info-box h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #0f172a;
+        }
+        .chat-info-box p {
+            color: #64748b;
+            margin: 0;
+        }
+
+        .chat-main {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            height: 580px;
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 88%;
+            animation: fadeIn 0.25s ease;
+        }
+        .message.assistant {
+            align-self: flex-start;
+        }
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+        }
+        .message.assistant .message-avatar {
+            background: #e2e8f0;
+        }
+        .message-content {
+            background: #f1f5f9;
+            padding: 12px 20px;
+            border-radius: 18px;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            color: #0f172a;
+            word-break: break-word;
+        }
+        .message-content p {
+            margin: 4px 0;
+        }
+        .message-content ul,
+        .message-content ol {
+            padding-left: 20px;
+            margin: 4px 0;
+        }
+        .message-content code {
+            background: #e2e8f0;
+            padding: 1px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        .message.user .message-content {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+        }
+        .message.user .message-content code {
+            background: rgba(255, 255, 255, 0.15);
+            color: #facc15;
+        }
+        .chat-input-container {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #edf2f7;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0 0 24px 24px;
+        }
+        .chat-input-container textarea {
+            flex: 1;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            padding: 12px 20px;
+            resize: none;
+            font-size: 0.88rem;
+            outline: none;
+            transition: all 0.2s ease;
+            background: white;
+            min-height: 48px;
+            max-height: 120px;
+        }
+        .chat-input-container textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+        .chat-input-container button {
+            border-radius: 30px;
+            padding: 0 28px;
+            flex-shrink: 0;
+        }
+
+        /*  MATH TAB */
+        .math-doc-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 32px 36px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .math-doc-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #0f172a;
+        }
+        .math-intro {
+            color: #475569;
+            margin-bottom: 24px;
+            font-size: 0.95rem;
+        }
+        .math-sections-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .math-block {
+            background: #fafbfc;
+            border-radius: 16px;
+            padding: 22px 24px;
+            border: 1px solid #edf2f7;
+            transition: all 0.3s ease;
+        }
+        .math-block:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        }
+        .math-block h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+        .math-block p {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .formula-box {
+            background: #0f172a;
+            color: #facc15;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        .math-block ul {
+            padding-left: 20px;
+            font-size: 0.82rem;
+            color: #334155;
+            margin-top: 6px;
+        }
+        .math-block ul li {
+            margin: 2px 0;
+        }
+
+        /* ----- MODAL ----- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+            animation: fadeIn 0.25s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 28px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            padding: 32px 36px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            line-height: 1;
+            color: #94a3b8;
+            transition: all 0.2s ease;
+            padding: 0 8px;
+        }
+        .btn-close:hover {
+            color: #131b30;
+            transform: rotate(90deg);
+        }
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-tile {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 14px 12px;
+            text-align: center;
+            border: 1px solid #edf2f7;
+            transition: all 0.2s ease;
+        }
+        .stat-tile:hover {
+            border-color: #cbd5e1;
+        }
+        .stat-tile .label {
+            font-size: 0.68rem;
+            color: #64748b;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            font-weight: 500;
+        }
+        .stat-tile .val {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            display: block;
+            margin-top: 2px;
+        }
+        .stat-tile.highlight {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            border-color: #0f172a;
+        }
+        .stat-tile.highlight .label {
+            color: #94a3b8;
+        }
+        .stat-tile.highlight .val {
+            color: #facc15;
+        }
+        .modal-chart-section {
+            margin: 18px 0 16px;
+        }
+        .modal-chart-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+        .modal-chart-container {
+            height: 160px;
+            background: #fafbfc;
+            border-radius: 14px;
+            padding: 8px;
+        }
+        .modal-calc-breakdown {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 18px 20px;
+            font-size: 0.88rem;
+            border: 1px solid #edf2f7;
+            margin-top: 4px;
+        }
+        .modal-calc-breakdown h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+        .modal-calc-breakdown p {
+            color: #475569;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #0f172a;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 40px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+            z-index: 1000;
+            max-width: 420px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            animation: slideUp 0.3s ease;
+        }
+        .toast .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .chat-layout {
+                grid-template-columns: 1fr;
+            }
+            .math-sections-grid {
+                grid-template-columns: 1fr;
+            }
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .app-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+                padding: 14px 18px;
+            }
+            .nav-tabs {
+                justify-content: center;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding: 4px;
+                gap: 2px;
+            }
+            .nav-tab {
+                padding: 8px 14px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            .nav-tab .tab-text {
+                display: none;
+            }
+            .nav-tab .tab-icon {
+                font-size: 1.1rem;
+            }
+            .header-right {
+                justify-content: center;
+            }
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .kpi-card {
+                padding: 14px 16px;
+            }
+            .kpi-value {
+                font-size: 1.3rem;
+            }
+            .kpi-icon-wrapper {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            .panel-card {
+                padding: 18px 16px;
+            }
+            .chart-card {
+                padding: 16px 16px;
+            }
+            .table-section {
+                padding: 16px 16px;
+            }
+            .report-container {
+                padding: 18px 16px;
+            }
+            .math-doc-card {
+                padding: 20px 16px;
+            }
+            .modal-box {
+                padding: 24px 20px;
+            }
+            .modal-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .chat-main {
+                height: 460px;
+            }
+            .chat-messages {
+                padding: 14px 16px;
+            }
+            .chat-input-container {
+                padding: 12px 16px;
+            }
+            .report-markdown-body {
+                padding: 18px 16px;
+                font-size: 0.85rem;
+            }
+            .input-with-button {
+                flex-direction: column;
+            }
+            .input-with-button input {
+                width: 100%;
+            }
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .table-search-input {
+                min-width: unset;
+            }
+            .doughnut-container {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                max-width: unset;
+                font-size: 0.82rem;
+                padding: 12px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo-box">
+                <div class="logo-icon"><i class="fas fa-cubes"></i></div>
+                <div class="logo-text">
+                    <h1>SmartInventory <span>AI</span></h1>
+                    <p>Demand Forecasting &bull; Supply Chain Copilot</p>
+                </div>
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="dashboard-tab">
+                    <span class="tab-icon"><i class="fas fa-chart-pie"></i></span>
+                    <span class="tab-text">Dashboard</span>
+                </button>
+                <button class="nav-tab" data-tab="report-tab">
+                    <span class="tab-icon"><i class="fas fa-file-alt"></i></span>
+                    <span class="tab-text">AI Report</span>
+                    <span class="tab-badge">New</span>
+                </button>
+                <button class="nav-tab" data-tab="chat-tab">
+                    <span class="tab-icon"><i class="fas fa-robot"></i></span>
+                    <span class="tab-text">Copilot</span>
+                </button>
+                <button class="nav-tab" data-tab="math-tab">
+                    <span class="tab-icon"><i class="fas fa-square-root-variable"></i></span>
+                    <span class="tab-text">Methodology</span>
+                </button>
+            </div>
+            <div class="header-right">
+                <div id="ollama-status-badge" class="ollama-badge checking">
+                    <span class="status-dot"></span>
+                    <span id="ollama-status-text">Connecting...</span>
+                </div>
+                <select id="ollama-model-select" class="model-dropdown">
+                    <option value="llama3">llama3</option>
+                    <option value="llama3.2">llama3.2</option>
+                    <option value="mistral">mistral</option>
+                    <option value="phi3">phi3</option>
+                    <option value="gemma2">gemma2</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- CONTROL PANEL -->
+        <section class="control-panel">
+            <div class="panel-card">
+                <div class="card-header">
+                    <h3><span class="header-icon"><i class="fas fa-database"></i></span> Data Ingestion</h3>
+                    <div class="action-buttons-group">
+                        <button id="btn-load-sample" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-bolt"></i> Load Sample
+                        </button>
+                        <a href="/api/download/sample-excel" class="btn btn-outline btn-sm" download>
+                            <i class="fas fa-download"></i> Template
+                        </a>
+                    </div>
+                </div>
+                <div class="drop-zone" id="drop-zone">
+                    <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none;">
+                    <div class="drop-content">
+                        <span class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></span>
+                        <p><strong>Click or Drag &amp; Drop</strong> Excel (.xlsx) or CSV</p>
+                        <span class="subtext">Auto-detects: SKU, Name, Stock, Cost, Lead Time, Demand History</span>
+                    </div>
+                </div>
+                <div class="or-divider"><span>or import from Google Sheets</span></div>
+                <div class="google-sheet-input-box">
+                    <label for="google-sheet-url"><i class="fas fa-link"></i> Public Google Sheet URL:</label>
+                    <div class="input-with-button">
+                        <input type="url" id="google-sheet-url" placeholder="https://docs.google.com/spreadsheets/d/.../edit" />
+                        <button id="btn-fetch-sheet" class="btn btn-primary btn-sm">
+                            <i class="fas fa-import"></i> Import
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="card-header">
+                    <h3><span class="header-icon"><i class="fas fa-sliders-h"></i></span> Forecast Engine</h3>
+                    <span class="helper-tag">Python backend</span>
+                </div>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="forecast-method">
+                            <span class="label-icon"><i class="fas fa-chart-line"></i></span> Method:
+                        </label>
+                        <select id="forecast-method" class="form-select">
+                            <option value="weighted_mean">Weighted Mean (WMA)</option>
+                            <option value="moving_average">Moving Average (SMA)</option>
+                            <option value="exponential_smoothing">Exp. Smoothing (SES)</option>
+                            <option value="holt">Holt's Double Exp.</option>
+                            <option value="linear_regression">Linear Regression</option>
+                            <option value="all">All Methods (Ensemble)</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic params: shown/hidden via JS -->
+                    <div class="config-item" id="param-window-wrapper">
+                        <label for="param-window">
+                            <span class="label-icon"><i class="fas fa-sliders-h"></i></span> Window:
+                        </label>
+                        <select id="param-window" class="form-select">
+                            <option value="2">2 periods</option>
+                            <option value="3" selected>3 periods</option>
+                            <option value="4">4 periods</option>
+                            <option value="6">6 periods</option>
+                            <option value="8">8 periods</option>
+                            <option value="12">12 periods</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item" id="param-weighting-wrapper">
+                        <label for="param-weighting">
+                            <span class="label-icon"><i class="fas fa-weight-hanging"></i></span> Weighting Type:
+                        </label>
+                        <select id="param-weighting" class="form-select">
+                            <option value="linear">Linear</option>
+                            <option value="exponential">Exponential</option>
+                            <option value="recent_heavy">Recent Heavy</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item" id="param-alpha-wrapper">
+                        <label for="param-alpha">
+                            <span class="label-icon"><i class="fas fa-alpha"></i></span> Alpha (α):
+                        </label>
+                        <select id="param-alpha" class="form-select">
+                            <option value="0.1">0.1 (smooth)</option>
+                            <option value="0.2">0.2</option>
+                            <option value="0.3" selected>0.3 (default)</option>
+                            <option value="0.5">0.5</option>
+                            <option value="0.7">0.7</option>
+                            <option value="0.9">0.9 (reactive)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item" id="param-beta-wrapper">
+                        <label for="param-beta">
+                            <span class="label-icon"><i class="fas fa-beta"></i></span> Beta (β):
+                        </label>
+                        <select id="param-beta" class="form-select">
+                            <option value="0.05">0.05</option>
+                            <option value="0.1">0.1</option>
+                            <option value="0.2" selected>0.2 (default)</option>
+                            <option value="0.3">0.3</option>
+                            <option value="0.5">0.5</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label for="service-level">
+                            <span class="label-icon"><i class="fas fa-shield-alt"></i></span> Service Level:
+                        </label>
+                        <select id="service-level" class="form-select">
+                            <option value="0.80">80% (Z=0.84)</option>
+                            <option value="0.85">85% (Z=1.04)</option>
+                            <option value="0.90">90% (Z=1.28)</option>
+                            <option value="0.95" selected>95% (Z=1.645)</option>
+                            <option value="0.98">98% (Z=2.05)</option>
+                            <option value="0.99">99% (Z=2.33)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-item">
+                        <label for="forecast-horizon">
+                            <span class="label-icon"><i class="fas fa-clock"></i></span> Horizon:
+                        </label>
+                        <select id="forecast-horizon" class="form-select">
+                            <option value="1">1 period</option>
+                            <option value="3" selected>3 periods</option>
+                            <option value="6">6 periods</option>
+                            <option value="12">12 periods</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="config-footer">
+                    <button id="btn-recalculate" class="btn btn-primary btn-block">
+                        <i class="fas fa-rotate"></i> Run Forecast &amp; Optimize
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="dashboard-tab" class="tab-content active">
+
+            <!-- KPI Cards -->
+            <section class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon-wrapper blue"><i class="fas fa-boxes"></i></div>
+                    <div class="kpi-details">
+                        <span class="kpi-label">Total SKUs</span>
+                        <span id="kpi-total-items" class="kpi-value">0</span>
+                        <span class="kpi-subtext" id="kpi-method-sub">Method: —</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon-wrapper red"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div class="kpi-details">
+                        <span class="kpi-label">Critical Risk</span>
+                        <span id="kpi-critical-risk" class="kpi-value">0</span>
+                        <span class="kpi-subtext">Stockout / Safety breach</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon-wrapper yellow"><i class="fas fa-cart-shopping"></i></div>
+                    <div class="kpi-details">
+                        <span class="kpi-label">Reorder Needed</span>
+                        <span id="kpi-reorder-count" class="kpi-value">0</span>
+                        <span class="kpi-subtext">Below ROP</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon-wrapper green"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="kpi-details">
+                        <span class="kpi-label">Reorder Investment</span>
+                        <span id="kpi-reorder-investment" class="kpi-value">$0.00</span>
+                        <span class="kpi-subtext">Working capital required</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon-wrapper purple"><i class="fas fa-coins"></i></div>
+                    <div class="kpi-details">
+                        <span class="kpi-label">Stock Valuation</span>
+                        <span id="kpi-total-stock-val" class="kpi-value">$0.00</span>
+                        <span class="kpi-subtext" id="kpi-overstock-count">0 overstocked</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts -->
+            <section class="charts-grid">
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-bar" style="color:#3b82f6;margin-right:6px;"></i> Stock vs. Demand &amp; ROP (Top 10)</h3>
+                        <span class="chart-hint"><i class="fas fa-mouse-pointer"></i> Click bar → detail</span>
+                    </div>
+                    <div class="chart-container"><canvas id="stockDemandChart"></canvas></div>
+                </div>
+                <div class="chart-card compact">
+                    <div class="chart-header"><h3><i class="fas fa-chart-pie" style="color:#8b5cf6;margin-right:6px;"></i> Inventory Health</h3></div>
+                    <div class="chart-container doughnut-container"><canvas id="riskDoughnutChart"></canvas></div>
+                </div>
+            </section>
+
+            <!-- Table -->
+            <section class="table-section">
+                <div class="table-header-bar">
+                    <div class="table-title">
+                        <h3><i class="fas fa-table" style="color:#3b82f6;margin-right:8px;"></i> SKU Forecast &amp; Replenishment Matrix</h3>
+                        <p>Forecast method: <span id="table-method-label">Weighted Mean</span> &bull; Lead Time Demand &bull; Z‑score Safety Stock</p>
+                    </div>
+                    <div class="table-controls">
+                        <input type="text" id="table-search" placeholder="🔍 Search SKU, Name..." class="table-search-input" />
+                        <select id="filter-status" class="filter-select">
+                            <option value="ALL">All Statuses</option>
+                            <option value="CRITICAL">🔴 Critical</option>
+                            <option value="HIGH">🟠 Low (Safety breach)</option>
+                            <option value="MEDIUM">🟡 Reorder needed</option>
+                            <option value="OVERSTOCK">🔵 Overstocked</option>
+                            <option value="HEALTHY">🟢 Healthy</option>
+                        </select>
+                        <button id="btn-export-csv" class="btn btn-outline btn-sm"><i class="fas fa-file-csv"></i> CSV</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Pred. Demand</th>
+                                <th>Safety Stock</th>
+                                <th>ROP</th>
+                                <th>DOI (days)</th>
+                                <th>Rec. Order</th>
+                                <th>PO Cost</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <tr><td colspan="11" class="empty-state"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No data. Click <strong>"Load Sample"</strong> or upload a file.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB 2: AI REPORT -->
+        <div id="report-tab" class="tab-content">
+            <div class="report-container">
+                <div class="report-toolbar">
+                    <div>
+                        <h2><i class="fas fa-file-lines" style="color:#3b82f6;margin-right:10px;"></i> AI Executive Report</h2>
+                        <span id="report-source-badge" class="report-source"><i class="fas fa-microchip"></i> Powered by Ollama</span>
+                    </div>
+                    <div class="action-buttons-group">
+                        <button id="btn-generate-report" class="btn btn-primary"><i class="fas fa-bolt"></i> Generate Report</button>
+                        <button id="btn-copy-report" class="btn btn-outline btn-sm"><i class="fas fa-copy"></i> Copy</button>
+                        <button id="btn-print-report" class="btn btn-secondary btn-sm"><i class="fas fa-print"></i> Print PDF</button>
+                    </div>
+                </div>
+                <div id="report-loading" class="report-loading-state" style="display:none;">
+                    <div class="spinner"></div>
+                    <p><i class="fas fa-brain" style="margin-right:8px;"></i> Ollama is synthesizing the executive report...</p>
+                </div>
+                <div id="report-content" class="report-markdown-body">
+                    <div class="report-placeholder">
+                        <span class="report-icon"><i class="fas fa-file-pen"></i></span>
+                        <h3>No Report Generated</h3>
+                        <p>Click <strong>"Generate Report"</strong> to have AI analyze your inventory.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: CHAT -->
+        <div id="chat-tab" class="tab-content">
+            <div class="chat-layout">
+                <div class="chat-sidebar">
+                    <h3><i class="fas fa-lightbulb" style="color:#facc15;margin-right:8px;"></i> Suggested Inquiries</h3>
+                    <p class="sidebar-subtext">Click a question to ask the AI Copilot:</p>
+                    <div class="suggestion-chips">
+                        <button class="chip" data-query="Explain how the Weighted Mean prediction formula works on this dataset."><span class="chip-icon"><i class="fas fa-calculator"></i></span> Explain Weighted Mean</button>
+                        <button class="chip" data-query="Which SKUs have the highest stockout risk and what purchase orders should I place first?"><span class="chip-icon"><i class="fas fa-triangle-exclamation"></i></span> Top urgent POs</button>
+                        <button class="chip" data-query="Why is SKU-1001 or SKU-1005 recommended for reorder? Walk me through the step-by-step numbers."><span class="chip-icon"><i class="fas fa-magnifying-glass"></i></span> Deep-dive SKU</button>
+                        <button class="chip" data-query="Which items are overstocked and tying up working capital? What is the recommended mitigation?"><span class="chip-icon"><i class="fas fa-coins"></i></span> Overstock analysis</button>
+                        <button class="chip" data-query="What happens if supplier lead times increase by 7 days across all categories?"><span class="chip-icon"><i class="fas fa-clock"></i></span> Lead time scenario</button>
+                    </div>
+                    <div class="chat-info-box">
+                        <h4><i class="fas fa-microchip" style="margin-right:6px;"></i> Active Model Context</h4>
+                        <p id="chat-context-status">Monitoring 0 items. Connected to Ollama.</p>
+                    </div>
+                </div>
+                <div class="chat-main">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message assistant">
+                            <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="message-content">
+                                <p><strong>Hello!</strong> I am your <strong>SmartInventory AI Copilot</strong>. I have direct access to your loaded dataset, statistical demand forecasts, and safety stock calculations.</p>
+                                <p>Ask me about any prediction, supplier risks, or individual SKUs!</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <textarea id="chat-input" placeholder="Ask about forecasts, formulas, SKUs..." rows="2"></textarea>
+                        <button id="btn-send-chat" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: MATH -->
+        <div id="math-tab" class="tab-content">
+            <div class="math-doc-card">
+                <h2><i class="fas fa-square-root-variable" style="color:#8b5cf6;margin-right:12px;"></i> Mathematical Methodology</h2>
+                <p class="math-intro">This system combines statistical time‑series forecasting with classic inventory optimization theory, matching the Python <code>InventoryPredictionEngine</code> implementation.</p>
+                <div class="math-sections-grid">
+                    <div class="math-block">
+                        <h3>1. Simple Moving Average (SMA)</h3>
+                        <p>Average of the most recent <code>window</code> periods.</p>
+                        <div class="formula-box">SMA = (Dₜ₋₁ + Dₜ₋₂ + … + Dₜ₋ₙ) / n</div>
+                        <ul><li><strong>n</strong>: window size (e.g. 3 periods)</li></ul>
+                    </div>
+                    <div class="math-block">
+                        <h3>2. Weighted Mean (WMA)</h3>
+                        <p>Recent periods get higher weights: linear, exponential, or recent-heavy.</p>
+                        <div class="formula-box">WMA = Σ(wᵢ·Dᵢ) / Σ(wᵢ)</div>
+                        <ul><li><strong>wᵢ</strong>: linear (1,2,…,n) or exponential weights</li></ul>
+                    </div>
+                    <div class="math-block">
+                        <h3>3. Simple Exponential Smoothing (SES)</h3>
+                        <p>Level smoothing with alpha. Best for no trend or seasonality.</p>
+                        <div class="formula-box">Sₜ = α·Yₜ + (1−α)·Sₜ₋₁</div>
+                        <ul><li><strong>α</strong>: smoothing factor (0–1)</li></ul>
+                    </div>
+                    <div class="math-block">
+                        <h3>4. Holt's Double Exponential</h3>
+                        <p>Separates level (L) and trend (T).</p>
+                        <div class="formula-box">Lₜ = α·Yₜ + (1−α)·(Lₜ₋₁ + Tₜ₋₁)<br/>Tₜ = β·(Lₜ − Lₜ₋₁) + (1−β)·Tₜ₋₁</div>
+                        <ul><li><strong>α</strong>: level smoothing, <strong>β</strong>: trend smoothing</li></ul>
+                    </div>
+                    <div class="math-block">
+                        <h3>5. Linear Regression</h3>
+                        <p>Fits demand = intercept + slope × time.</p>
+                        <div class="formula-box">Demand = a + b·t</div>
+                        <ul><li><strong>a</strong>: intercept, <strong>b</strong>: slope (trend)</li></ul>
+                    </div>
+                    <div class="math-block">
+                        <h3>6. Safety Stock &amp; ROP</h3>
+                        <p>Buffer against demand variability during lead time.</p>
+                        <div class="formula-box">SS = Z · √L · σ_daily<br/>ROP = (d̄_daily · L) + SS<br/>ROQ = max(0, ROP + D_monthly − Stock)</div>
+                        <ul><li><strong>Z</strong>: 1.645 for 95% service level</li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end app-container -->
+
+    <!-- MODAL -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modal-title"><i class="fas fa-cube" style="margin-right:10px;color:#3b82f6;"></i> SKU Detail</h3>
+                <button class="btn-close" id="btn-close-modal">&times;</button>
+            </div>
+            <div class="modal-stats-grid" id="modal-stats">
+                <div class="stat-tile"><span class="label"><i class="fas fa-warehouse"></i> Current Stock</span><span class="val" id="modal-stock">—</span></div>
+                <div class="stat-tile"><span class="label"><i class="fas fa-chart-simple"></i> Pred. Demand</span><span class="val" id="modal-demand">—</span></div>
+                <div class="stat-tile"><span class="label"><i class="fas fa-shield"></i> Safety Stock</span><span class="val" id="modal-safety">—</span></div>
+                <div class="stat-tile"><span class="label"><i class="fas fa-flag"></i> ROP</span><span class="val" id="modal-rop">—</span></div>
+                <div class="stat-tile highlight"><span class="label"><i class="fas fa-cart-plus"></i> Rec. Order Qty</span><span class="val" id="modal-order-qty">—</span></div>
+                <div class="stat-tile"><span class="label"><i class="fas fa-dollar-sign"></i> Est. PO Cost</span><span class="val" id="modal-order-cost">—</span></div>
+            </div>
+            <div class="modal-chart-section">
+                <h4><i class="fas fa-chart-line" style="margin-right:6px;"></i> Historical Demand &amp; Forecast</h4>
+                <div class="modal-chart-container"><canvas id="itemHistoryChart"></canvas></div>
+            </div>
+            <div class="modal-calc-breakdown">
+                <h4><i class="fas fa-calculator" style="margin-right:6px;"></i> Calculation Explanation</h4>
+                <p id="modal-explanation">Select a SKU from the table to see details.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast" style="display:none;">
+        <span class="toast-icon"><i class="fas fa-circle-check"></i></span>
+        <span id="toast-message">Success</span>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        (function() {
+
+            // ----- State -----
+            let currentItems = [];
+            let currentSummary = {};
+            let currentChartInstance = null;
+            let doughnutInstance = null;
+            let modalChartInstance = null;
+            let chatHistory = [];
+
+            //  DOM refs 
+            const $ = id => document.getElementById(id);
+            const toastEl = $('toast');
+            const toastMsg = $('toast-message');
+            const tableBody = $('table-body');
+            const modalOverlay = $('modal-overlay');
+
+            //  Utility 
+              function showToast(msg, icon = 'circle-check', duration = 4000) {
+                toastMsg.textContent = msg;
+                toastEl.querySelector('.toast-icon').innerHTML = `<i class="fas fa-${icon}"></i>`;
+                toastEl.style.display = 'flex';
+                clearTimeout(toastEl._timer);
+                toastEl._timer = setTimeout(() => {
+                    toastEl.style.display = 'none';
+                }, duration);
+            }
+
+            function statusBadge(level) {
+                const map = {
+                    'CRITICAL': 'badge-critical',
+                    'HIGH': 'badge-high',
+                    'MEDIUM': 'badge-medium',
+                    'OVERSTOCK': 'badge-overstock',
+                    'HEALTHY': 'badge-healthy'
+                };
+                const iconMap = {
+                    'CRITICAL': '🔴',
+                    'HIGH': '🟠',
+                    'MEDIUM': '🟡',
+                    'OVERSTOCK': '🔵',
+                    'HEALTHY': '🟢'
+                };
+                return `<span class="badge ${map[level] || ''}">${iconMap[level] || ''} ${level || 'UNKNOWN'}</span>`;
+            }
+
+            // API calls 
+            async function apiFetch(endpoint, opts = {}) {
+                const res = await fetch(endpoint, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...opts
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            }
+
+            // Build payload from UI
+            function buildPayload() {
+                return {
+                    method: $('forecast-method').value,
+                    window: parseInt($('param-window').value),
+                    weighting_type: $('param-weighting').value,
+                    alpha: parseFloat($('param-alpha').value),
+                    beta: parseFloat($('param-beta').value),
+                    service_level: parseFloat($('service-level').value),
+                    horizon: parseInt($('forecast-horizon').value)
+                };
+            }
+
+            async function loadSampleData() {
+                const p = buildPayload();
+                const url =
+                    `/api/sample-data?method=${p.method}&weighting_type=${p.weighting_type}&service_level=${p.service_level}&horizon=${p.horizon}&window=${p.window}&alpha=${p.alpha}&beta=${p.beta}`;
+                try {
+                    const data = await apiFetch(url);
+                    applyData(data);
+                    showToast('Sample data loaded successfully', 'check');
+                } catch (e) {
+                    showToast('Error loading sample: ' + e.message, 'xmark');
+                }
+            }
+
+            async function recalculate() {
+                if (!currentItems.length) {
+                    showToast('No data loaded. Load sample or upload a file first.', 'exclamation-triangle');
+                    return;
+                }
+                const p = buildPayload();
+                const payload = {
+                    items: currentItems,
+                    method: p.method,
+                    window: p.window,
+                    weighting_type: p.weighting_type,
+                    alpha: p.alpha,
+                    beta: p.beta,
+                    service_level: p.service_level,
+                    horizon: p.horizon
+                };
+                try {
+                    const data = await apiFetch('/api/predict', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    applyData(data);
+                    showToast('Forecasts recalculated', 'rotate');
+                } catch (e) {
+                    showToast('Recalculation error: ' + e.message, 'xmark');
+                }
+            }
+
+            function applyData(data) {
+                currentItems = data.items || [];
+                currentSummary = data.summary || {};
+                renderKPI();
+                renderTable();
+                renderCharts();
+                updateChatContext();
+                // Update method label in table header
+                const methodMap = {
+                    'moving_average': 'SMA',
+                    'weighted_mean': 'Weighted Mean',
+                    'exponential_smoothing': 'SES',
+                    'holt': "Holt's Double Exp.",
+                    'linear_regression': 'Linear Regression',
+                    'all': 'Ensemble (All)'
+                };
+                const m = $('forecast-method').value;
+                $('table-method-label').textContent = methodMap[m] || m;
+                // Show/hide params based on method
+                updateParamVisibility(m);
+            }
+
+            // Show/hide parameter controls based on selected method
+            function updateParamVisibility(method) {
+                // Window: SMA and WMA
+                const showWindow = (method === 'moving_average' || method === 'weighted_mean');
+                $('param-window-wrapper').style.display = showWindow ? 'flex' : 'none';
+
+                // Weighting: only WMA
+                const showWeighting = (method === 'weighted_mean');
+                $('param-weighting-wrapper').style.display = showWeighting ? 'flex' : 'none';
+
+                // Alpha: SES and Holt
+                const showAlpha = (method === 'exponential_smoothing' || method === 'holt');
+                $('param-alpha-wrapper').style.display = showAlpha ? 'flex' : 'none';
+
+                // Beta: only Holt
+                const showBeta = (method === 'holt');
+                $('param-beta-wrapper').style.display = showBeta ? 'flex' : 'none';
+            }
+
+            // Render functions 
+            function renderKPI() {
+                const s = currentSummary;
+                $('kpi-total-items').textContent = s.total_items || 0;
+                $('kpi-critical-risk').textContent = s.critical_risk_count || 0;
+                $('kpi-reorder-count').textContent = s.reorder_needed_count || 0;
+                $('kpi-reorder-investment').textContent = '$' + (s.total_reorder_investment || 0).toFixed(2);
+                $('kpi-total-stock-val').textContent = '$' + (s.total_stock_value || 0).toFixed(2);
+                $('kpi-overstock-count').textContent = (s.overstock_count || 0) + ' overstocked';
+                const methodMap = {
+                    'moving_average': 'SMA',
+                    'weighted_mean': 'Weighted Mean',
+                    'exponential_smoothing': 'SES',
+                    'holt': "Holt's Double Exp.",
+                    'linear_regression': 'Linear Regression',
+                    'all': 'Ensemble'
+                };
+                const m = $('forecast-method').value;
+                $('kpi-method-sub').textContent = 'Method: ' + (methodMap[m] || s.method_used || '—');
+            }
+
+            function renderTable() {
+                const search = $('table-search').value.toLowerCase();
+                const filter = $('filter-status').value;
+                let rows = currentItems;
+                if (search) rows = rows.filter(it =>
+                    it.sku.toLowerCase().includes(search) ||
+                    it.name.toLowerCase().includes(search) ||
+                    it.category.toLowerCase().includes(search)
+                );
+                if (filter !== 'ALL') rows = rows.filter(it => it.risk_level === filter);
+
+                if (!rows.length) {
+                    tableBody.innerHTML =
+                        `<tr><td colspan="11" class="empty-state"><i class="fas fa-search" style="font-size:1.8rem;display:block;margin-bottom:8px;opacity:0.4;"></i>No matching items found.</td></tr>`;
+                    return;
+                }
+                let html = '';
+                rows.forEach(it => {
+                    const roq = it.recommended_order_qty || 0;
+                    const poCost = (it.reorder_investment || 0);
+                    html += `<tr>
+              <td><strong>${it.sku}</strong></td>
+              <td>${it.name}</td>
+              <td>${it.category}</td>
+              <td>${it.current_stock}</td>
+              <td>${it.next_period_forecast || 0}</td>
+              <td>${it.safety_stock || 0}</td>
+              <td>${it.reorder_point || 0}</td>
+              <td>${it.days_of_inventory || '∞'}</td>
+              <td>${roq}</td>
+              <td>$${poCost.toFixed(2)}</td>
+              <td>${statusBadge(it.risk_level)}</td>
+            </tr>`;
+                });
+                tableBody.innerHTML = html;
+                tableBody.querySelectorAll('tr').forEach((tr, idx) => {
+                    tr.style.cursor = 'pointer';
+                    tr.addEventListener('click', () => {
+                        const item = rows[idx];
+                        if (item) openModal(item);
+                    });
+                });
+            }
+
+            function renderCharts() {
+                const sorted = [...currentItems].sort((a, b) => b.current_stock - a.current_stock).slice(0, 10);
+                const labels = sorted.map(it => it.sku);
+                const stockData = sorted.map(it => it.current_stock);
+                const demandData = sorted.map(it => it.next_period_forecast || 0);
+                const ropData = sorted.map(it => it.reorder_point || 0);
+
+                const ctx = document.getElementById('stockDemandChart').getContext('2d');
+                if (currentChartInstance) currentChartInstance.destroy();
+                currentChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: 'Current Stock',
+                            data: stockData,
+                            backgroundColor: 'rgba(59,130,246,0.75)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }, {
+                            label: 'Pred. Demand',
+                            data: demandData,
+                            backgroundColor: 'rgba(250,204,21,0.75)',
+                            borderColor: '#facc15',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }, {
+                            label: 'ROP',
+                            data: ropData,
+                            backgroundColor: 'rgba(239,68,68,0.75)',
+                            borderColor: '#ef4444',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top', labels: { usePointStyle: true, padding: 16 } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                            x: { grid: { display: false } }
+                        },
+                        onClick: (e, elements) => {
+                            if (elements.length) {
+                                const idx = elements[0].index;
+                                const item = sorted[idx];
+                                if (item) openModal(item);
+                            }
+                        }
+                    }
+                });
+
+                // Doughnut: risk breakdown
+                const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, OVERSTOCK: 0, HEALTHY: 0 };
+                currentItems.forEach(it => { if (counts[it.risk_level] !== undefined) counts[it.risk_level]++; });
+                const dc = document.getElementById('riskDoughnutChart').getContext('2d');
+                if (doughnutInstance) doughnutInstance.destroy();
+                doughnutInstance = new Chart(dc, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Critical', 'High', 'Medium', 'Overstock', 'Healthy'],
+                        datasets: [{
+                            data: [counts.CRITICAL, counts.HIGH, counts.MEDIUM, counts.OVERSTOCK, counts
+                                .HEALTHY
+                            ],
+                            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#22c55e'],
+                            borderWidth: 3,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { usePointStyle: true, padding: 12 } }
+                        },
+                        cutout: '70%'
+                    }
+                });
+            }
+
+            // Modal 
+            function openModal(item) {
+                $('modal-title').textContent = `${item.sku} — ${item.name}`;
+                $('modal-stock').textContent = item.current_stock;
+                $('modal-demand').textContent = item.next_period_forecast || 0;
+                $('modal-safety').textContent = item.safety_stock || 0;
+                $('modal-rop').textContent = item.reorder_point || 0;
+                $('modal-order-qty').textContent = item.recommended_order_qty || 0;
+                $('modal-order-cost').textContent = '$' + (item.reorder_investment || 0).toFixed(2);
+                $('modal-explanation').textContent = item.forecast_explanation || 'No explanation available.';
+
+                const hist = item.demand_history || [];
+                const forecast = item.horizon_forecast || [];
+                const labels = hist.map((_, i) => `T-${hist.length - i}`);
+                const ctx = document.getElementById('itemHistoryChart').getContext('2d');
+                if (modalChartInstance) modalChartInstance.destroy();
+                modalChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [...labels, ...forecast.map((_, i) => `F+${i+1}`)],
+                        datasets: [{
+                            label: 'Historical',
+                            data: hist,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59,130,246,0.08)',
+                            fill: true,
+                            tension: 0.3,
+                            pointRadius: 3
+                        }, {
+                            label: 'Forecast',
+                            data: [...Array(hist.length).fill(null), ...forecast],
+                            borderColor: '#facc15',
+                            borderDash: [6, 4],
+                            tension: 0.3,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#facc15'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // ----- Chat -----
+            function updateChatContext() {
+                const methodMap = {
+                    'moving_average': 'SMA',
+                    'weighted_mean': 'Weighted Mean',
+                    'exponential_smoothing': 'SES',
+                    'holt': "Holt's Double Exp.",
+                    'linear_regression': 'Linear Regression',
+                    'all': 'Ensemble'
+                };
+                const m = $('forecast-method').value;
+                $('chat-context-status').textContent =
+                    `Monitoring ${currentItems.length} items. ${methodMap[m] || '—'} method.`;
+            }
+
+            async function sendChatMessage(message) {
+                if (!message.trim()) return;
+                const msgs = $('chat-messages');
+                const userDiv = document.createElement('div');
+                userDiv.className = 'message user';
+                userDiv.innerHTML =
+                    `<div class="message-avatar"><i class="fas fa-user"></i></div><div class="message-content">${message}</div>`;
+                msgs.appendChild(userDiv);
+                msgs.scrollTop = msgs.scrollHeight;
+
+                const payload = {
+                    message,
+                    history: chatHistory.slice(-6),
+                    summary: currentSummary,
+                    items: currentItems.slice(0, 50),
+                    model: $('ollama-model-select').value
+                };
+                try {
+                    const data = await apiFetch('/api/ai/chat', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const reply = data.reply || 'No response.';
+                    chatHistory.push({ role: 'user', content: message });
+                    chatHistory.push({ role: 'assistant', content: reply });
+                    const assDiv = document.createElement('div');
+                    assDiv.className = 'message assistant';
+                    assDiv.innerHTML =
+                        `<div class="message-avatar"><i class="fas fa-robot"></i></div><div class="message-content">${marked.parse(reply)}</div>`;
+                    msgs.appendChild(assDiv);
+                    msgs.scrollTop = msgs.scrollHeight;
+                    $('chat-input').value = '';
+                } catch (e) {
+                    showToast('Chat error: ' + e.message, 'xmark');
+                }
+            }
+
+            // AI Report 
+            async function generateReport() {
+                if (!currentItems.length) {
+                    showToast('No data loaded. Load sample or upload a file first.', 'exclamation-triangle');
+                    return;
+                }
+                $('report-loading').style.display = 'block';
+                $('report-content').innerHTML = '';
+                const payload = {
+                    summary: currentSummary,
+                    items: currentItems.slice(0, 30),
+                    model: $('ollama-model-select').value
+                };
+                try {
+                    const data = await apiFetch('/api/ai/report', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    const markdown = data.report_markdown || 'No report generated.';
+                    $('report-content').innerHTML = marked.parse(markdown);
+                    $('report-source-badge').textContent = 'Source: ' + (data.source || 'Ollama');
+                    showToast('Report generated successfully', 'file-lines');
+                } catch (e) {
+                    $('report-content').innerHTML = `<p style="color:#ef4444;"><i class="fas fa-circle-exclamation"></i> Error generating report: ${e.message}</p>`;
+                }
+                $('report-loading').style.display = 'none';
+            }
+
+            // Ollama status 
+            async function checkOllama() {
+                const badge = $('ollama-status-badge');
+                const text = $('ollama-status-text');
+                badge.className = 'ollama-badge checking';
+                text.textContent = 'Checking...';
+                try {
+                    const data = await apiFetch('/api/ollama/status');
+                    if (data.connected) {
+                        badge.className = 'ollama-badge online';
+                        text.textContent = `Ollama: ${data.models.length} models`;
+                        const select = $('ollama-model-select');
+                        const current = select.value;
+                        select.innerHTML = '';
+                        data.models.forEach(m => {
+                            const opt = document.createElement('option');
+                            opt.value = m;
+                            opt.textContent = m;
+                            select.appendChild(opt);
+                        });
+                        if (data.models.includes(current)) select.value = current;
+                    } else {
+                        badge.className = 'ollama-badge offline';
+                        text.textContent = 'Ollama offline';
+                    }
+                } catch (e) {
+                    badge.className = 'ollama-badge offline';
+                    text.textContent = 'Ollama unavailable';
+                }
+            }
+
+            // File upload 
+            function setupFileUpload() {
+                const drop = $('drop-zone');
+                const fileInput = $('file-input');
+                drop.addEventListener('click', () => fileInput.click());
+                drop.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    drop.classList.add('dragover');
+                });
+                drop.addEventListener('dragleave', () => {
+                    drop.classList.remove('dragover');
+                });
+                drop.addEventListener('drop', e => {
+                    e.preventDefault();
+                    drop.classList.remove('dragover');
+                    const files = e.dataTransfer.files;
+                    if (files.length) handleFile(files[0]);
+                });
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length) handleFile(fileInput.files[0]);
+                    fileInput.value = '';
+                });
+            }
+
+            async function handleFile(file) {
+                const p = buildPayload();
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('method', p.method);
+                formData.append('window', p.window);
+                formData.append('weighting_type', p.weighting_type);
+                formData.append('alpha', p.alpha);
+                formData.append('beta', p.beta);
+                formData.append('service_level', p.service_level);
+                formData.append('horizon', p.horizon);
+                try {
+                    const res = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+                    const data = await res.json();
+                    applyData(data);
+                    showToast('File uploaded successfully', 'check');
+                } catch (e) {
+                    showToast('Upload error: ' + e.message, 'xmark');
+                }
+            }
+
+            // Google Sheet 
+            async function fetchGoogleSheet() {
+                const url = $('google-sheet-url').value.trim();
+                if (!url) { showToast('Please enter a Google Sheet URL', 'exclamation-triangle'); return; }
+                const p = buildPayload();
+                const payload = {
+                    sheet_url: url,
+                    method: p.method,
+                    window: p.window,
+                    weighting_type: p.weighting_type,
+                    alpha: p.alpha,
+                    beta: p.beta,
+                    service_level: p.service_level,
+                    horizon: p.horizon
+                };
+                try {
+                    const data = await apiFetch('/api/predict/google-sheet', {
+                        method: 'POST',
+                        body: JSON.stringify(payload)
+                    });
+                    applyData(data);
+                    showToast('Google Sheet imported', 'check');
+                } catch (e) {
+                    showToast('Sheet error: ' + e.message, 'xmark');
+                }
+            }
+
+            // CSV Export 
+            function exportCSV() {
+                if (!currentItems.length) { showToast('No data to export', 'exclamation-triangle'); return; }
+                const headers = ['SKU', 'Name', 'Category', 'Current Stock', 'Pred. Demand', 'Safety Stock', 'ROP', 'DOI',
+                    'Rec. Order', 'PO Cost', 'Risk Level'
+                ];
+                const rows = currentItems.map(it => [
+                    it.sku, it.name, it.category, it.current_stock, it.next_period_forecast || 0,
+                    it.safety_stock || 0, it.reorder_point || 0, it.days_of_inventory || '∞',
+                    it.recommended_order_qty || 0, it.reorder_investment || 0, it.risk_level
+                ]);
+                let csv = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'inventory_forecast.csv';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showToast('CSV exported', 'file-csv');
+            }
+
+            // Navigation tabs 
+            function setupTabs() {
+                document.querySelectorAll('.nav-tab').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const tabId = btn.dataset.tab;
+                        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                        document.getElementById(tabId).classList.add('active');
+                    });
+                });
+            }
+
+            // Init 
+            function init() {
+                setupTabs();
+                setupFileUpload();
+
+                // Initial param visibility
+                updateParamVisibility($('forecast-method').value);
+
+                // Method change → update param visibility
+                $('forecast-method').addEventListener('change', function() {
+                    updateParamVisibility(this.value);
+                });
+
+                $('btn-load-sample').addEventListener('click', loadSampleData);
+                $('btn-recalculate').addEventListener('click', recalculate);
+                $('btn-fetch-sheet').addEventListener('click', fetchGoogleSheet);
+                $('btn-export-csv').addEventListener('click', exportCSV);
+                $('btn-generate-report').addEventListener('click', generateReport);
+                $('btn-copy-report').addEventListener('click', () => {
+                    const content = $('report-content').innerText;
+                    navigator.clipboard.writeText(content).then(() => showToast('Report copied', 'copy'))
+                        .catch(() => showToast('Copy failed', 'xmark'));
+                });
+                $('btn-print-report').addEventListener('click', () => window.print());
+
+                $('btn-send-chat').addEventListener('click', () => {
+                    const msg = $('chat-input').value;
+                    sendChatMessage(msg);
+                });
+                $('chat-input').addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        $('btn-send-chat').click();
+                    }
+                });
+                document.querySelectorAll('.chip').forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const q = chip.dataset.query;
+                        $('chat-input').value = q;
+                        $('btn-send-chat').click();
+                    });
+                });
+
+                $('btn-close-modal').addEventListener('click', closeModal);
+                modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+                $('table-search').addEventListener('input', renderTable);
+                $('filter-status').addEventListener('change', renderTable);
+
+                // Auto-recalc on param change if data loaded
+                document.querySelectorAll('#forecast-method, #param-window, #param-weighting, #param-alpha, #param-beta, #service-level, #forecast-horizon')
+                    .forEach(el => {
+                        el.addEventListener('change', () => {
+                            if (currentItems.length) recalculate();
+                            // Also update param visibility on method change
+                            if (el.id === 'forecast-method') {
+                                updateParamVisibility(el.value);
+                            }
+                        });
+                    });
+
+                checkOllama();
+                setInterval(checkOllama, 30000);
+
+                loadSampleData();
+            }
+
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+
+</body>
+</html>
